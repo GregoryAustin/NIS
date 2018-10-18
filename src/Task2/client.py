@@ -1,5 +1,8 @@
+#!/usr/bin/python3
+
 import socket
 from cryptography.fernet import Fernet
+import datetime
 
 def encryptIt(msg):
 	key = "bLiurzCvdG9ootkn_U2n8abt6lL2r7E0e9HiLyUYYdg=".encode() # The symmetric key
@@ -31,5 +34,7 @@ while(True):
 			print(msg)
 			s.close()
 			break
+		msg = str(datetime.datetime.now()) + msg
+		print("This is the message: ", msg)
 		msg = encryptIt(msg)
 		s.sendall(msg)

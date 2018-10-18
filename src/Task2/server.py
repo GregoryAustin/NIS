@@ -1,5 +1,9 @@
+#!/usr/bin/python3
+
 import socket
 from cryptography.fernet import Fernet
+import datetime
+from datetime import timedelta
 
 def decryptIt(msg):
 	key = "bLiurzCvdG9ootkn_U2n8abt6lL2r7E0e9HiLyUYYdg=".encode() # The symmetric key
@@ -29,10 +33,20 @@ while True:
 			break
 
 		print("\nTHE RECEIVED MSG:\n", str(data))
+		# Skip the initial data msg bc it bugs the link out for some reason
 		if("Client connected." in str(data)):
 			conn.sendall(data)
 		else:
-			print("THE ORIGINAL MSG:\n", decryptIt(data))
+			msg = decryptIt(data)
+			timestamp = datetime.datetime.strptime(msg[:26].decode(), '%Y-%m-%d %H:%M:%S.%f')	# turn from byte to string to datetime
+			print("HERE NOW: ", datetime.datetime.now())
+			msg = msg[26:]
+			# Checking timestamps ... test by making range less than microseconds=1000
+			if((timestamp - timedelta(microseconds=5000)) < datetime.datetime.now() < (timestamp + timedelta(microseconds=5000))):
+				print("THE ORIGINAL MSG:\n", msg)
+			else:
+				print("POTENTIAL RELAY ATTACK HAS OCCURED.")
+				print("THE DELIVERED MSG IS:\n", msg)
 			conn.sendall(data)
 
 	except Exception as e:
