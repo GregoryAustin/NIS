@@ -6,6 +6,7 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 
+# if a security measure fails
 def hacked():
     print ("Warning, you may have been hacked.")
     file = open("log.txt", 'a')
