@@ -1,4 +1,0 @@
-
-Connected: ('127.0.0.1', 53489)
-
-Key: aML6MQJQ1_wmJI1DK5wtS6qCO2JAnYj6jvRPY3VqLBA=

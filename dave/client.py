@@ -1,5 +1,16 @@
 
+
+# NIS Assignment 2018
+
+# David Jones - JNSDAV026
+# Gregory Austin - ASTGRE002
+# Joshua Abraham - ABRJOS005
+# Matthew Young - YNGMAT005
+
+
+# imports
 import socket
+import datetime
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
@@ -59,6 +70,9 @@ while(True):
         if msg == 'quit':
             s.close()
             break
+        
+        # add timestamp
+        msg = str(datetime.datetime.now()) + msg
         
         # add 512-bit hash cryptographic hash function value
         h = hashes.Hash(hashes.SHA512(), backend=default_backend())

@@ -1,16 +1,30 @@
 
+
+# NIS Assignment 2018
+
+# David Jones - JNSDAV026
+# Gregory Austin - ASTGRE002
+# Joshua Abraham - ABRJOS005
+# Matthew Young - YNGMAT005
+
+
+# imports
 import sys
 import socket
+import datetime
+from datetime import timedelta
 from cryptography.fernet import Fernet
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 
 # if a security measure fails
-def hacked():
+def hacked(attack):
     print ("Warning, you may have been hacked.")
+    print ("Potential " + attack + " attack.")
     file = open("log.txt", 'a')
     file.write("\nWarning, you may have been hacked.")
+    file.write("\nPotential " + attack + " attack.")
     file.close()    
 
 # program title
@@ -69,15 +83,18 @@ key = Fernet.generate_key()
 conn.sendall(key)
 enc = Fernet(key)
 file = open("log.txt", 'a')
-file.write("\nKey: " + str(key)[2 : -1] + "\n")
+file.write("\nKey: " + key.decode() + "\n")
 file.close()
 
 # keep track of the number of incoming messages
 message_ID = 0
 
+# most recent timestamp
+current_time = datetime.datetime.now()
+
 # check for incoming messages
 while True:
-    try:     
+    try:
         # receive message
         enc_msg = conn.recv(PORT)
         if not enc_msg:
@@ -92,42 +109,61 @@ while True:
         # decrypt message
         data = enc.decrypt(enc_msg)
         
-        # check if message has been modified
+        # check if message hash been modified
         try:
             # separate message and 512-bit cryptographic hash value
             message = data
             hash_value = message[0 : int(512/8)]
             message = message[int(512/8) : ]
             
-            # test has value
+            # test hash value
             h = hashes.Hash(hashes.SHA512(), backend=default_backend())
             h.update(message)
             test_hash_value = h.finalize()
             
-            # check if has values match
+            # check if hash values match
             if (test_hash_value != hash_value):
                 print ("Incorrect hash value.")
                 file = open("log.txt", 'a')
                 file.write("\nIncorrect hash value.")
                 file.close()                
-                hacked()
+                hacked("modification")
             
-            # log the has value
+            # log the hash value
             file = open("log.txt", 'a')
             file.write("\nHash value: " + str(hash_value)[2 : -1])
             file.close()
+            
+            # check for relay attack
+            timestamp = datetime.datetime.strptime(message[:26].decode(), '%Y-%m-%d %H:%M:%S.%f')
+            message = message[26:]
+            
+            # log the timestamp
+            file = open("log.txt", 'a')
+            file.write("\nTimestamp: " + str(timestamp))
+            file.close()
+            
+            # if the timestamp is older than the most recent timestamp - possible attack
+            if (current_time - timestamp >= timedelta(microseconds = 0)):
+                hacked("replay")
+            else:
+                current_time = timestamp
+            
+            # if the timestamp is older than 3 seconds - possible attack
+            if (datetime.datetime.now() - timestamp > timedelta(microseconds = 3000000)):
+                hacked("replay")
         
         # a possible error such as an array-out-of-bounds error indicates the message has been tampered with
         except:
-            hacked()
+            hacked("modification")
         
         # display message
-        print(str(message)[2 : -1])
+        print(message.decode())
         file = open("log.txt", 'a')
-        file.write("\nMessage text: " + str(message)[2 : -1] + "\n")
+        file.write("\nMessage text: " + message.decode() + "\n")
         file.close()
     
     # end program if there is an exception
     except Exception:
         print ("An error occurred.")
-        break
+        break  
