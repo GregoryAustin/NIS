@@ -10,14 +10,14 @@ conn, addr = s.accept()
 print('Connected by', addr)
 while True:
     try:
-	data = conn.recv(1024)
+        data = conn.recv(1024)
 
-	if not data:
-	    break
-	
-	print(data)
-	conn.sendall(data)
-	
+        if not data:
+            break
+
+        print(data)
+        conn.sendall(data)
+
     except Exception:
-	break;
-    
+        break;
+
