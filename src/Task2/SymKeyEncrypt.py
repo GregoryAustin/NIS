@@ -9,7 +9,7 @@ print(isinstance(msg, str))
 print(isinstance(msg, bytes))
 '''
 
-key = Fernet.generate_key()
+key = "bLiurzCvdG9ootkn_U2n8abt6lL2r7E0e9HiLyUYYdg=".encode()	# The symmetric key
 enc = Fernet(key)
 
 enc_msg = enc.encrypt(msg)
