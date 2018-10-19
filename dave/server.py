@@ -1,5 +1,3 @@
-
-
 # NIS Assignment 2018
 
 # David Jones - JNSDAV026
@@ -13,7 +11,6 @@ import sys
 import socket
 import datetime
 from datetime import timedelta
-from cryptography.fernet import Fernet
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
@@ -69,7 +66,7 @@ print ("Waiting for a client...")
 s.listen(0)
 conn, addr = s.accept()
 file = open("port", 'w')
-file.write("")
+file.write(str(PORT))
 file.close()
 
 # client connected
@@ -144,6 +141,7 @@ while True:
             file.close()
             
             # if the timestamp is older than the most recent timestamp - possible attack
+            print(current_time)
             if (current_time - timestamp >= timedelta(microseconds = 0)):
                 hacked("replay")
             else:
@@ -159,6 +157,11 @@ while True:
         
         # display message
         print(message.decode())
+
+        # let client know the message was received
+        conn.sendall(enc.encrypt(hash_value))
+
+        # log the message
         file = open("log.txt", 'a')
         file.write("\nMessage text: " + message.decode() + "\n")
         file.close()
