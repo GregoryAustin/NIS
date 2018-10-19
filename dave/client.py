@@ -104,7 +104,7 @@ while(True):
                 print("No confirmation received from the server. Resending message.")
                 s.sendall(msg_enc)
                 current_time = datetime.datetime.now()
-
+            # only listen for 2 seconds at a time to receive a confirmation
             s.setblocking(0)
             ready = select.select([s], [], [], 2)
             if ready[0]:
