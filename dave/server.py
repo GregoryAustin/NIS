@@ -7,7 +7,9 @@
 
 
 # imports
+import os
 import sys
+import shutil
 import socket
 import datetime
 from datetime import timedelta
@@ -15,33 +17,20 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 
+# socket variables
+HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
+PORT = 1024         # Port to listen on (non-privileged ports are > 1023)
+
 # if a security measure fails
 def hacked(attack):
     print ("Warning, you may have been hacked.")
     print ("Potential " + attack + " attack.")
-    file = open("log.txt", 'a')
-    file.write("\nWarning, you may have been hacked.")
-    file.write("\nPotential " + attack + " attack.")
-    file.close()    
+    with os.fdopen(os.open(LOG_FILE, FLAG, PERM), 'a') as fout:
+        fout.write("\nWarning, you may have been hacked.")
+        fout.write("\nPotential " + attack + " attack.")
 
 # program title
 print ("\nServer\n")
-
-# clear log file
-file = open("log.txt", 'w')
-file.write("")
-file.close()
-
-# clear port file
-file = open("port", 'w')
-file.write("")
-file.close()
-
-# Standard loopback interface address (localhost)
-HOST = '127.0.0.1'
-
-# Port to listen on (non-privileged ports are > 1023)
-PORT = 1024
 
 # create server and look for an empty port
 while (True):
@@ -49,7 +38,8 @@ while (True):
         # try create a socket using current port number
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((HOST, PORT))
-        file = open("port", 'w')
+        # create new port file once available port is found
+        file = open('port', 'w')
         file.write(str(PORT))
         file.close()
         break
@@ -65,23 +55,24 @@ while (True):
 print ("Waiting for a client...")
 s.listen(0)
 conn, addr = s.accept()
-file = open("port", 'w')
-file.write(str(PORT))
-file.close()
 
 # client connected
-print("Connected: " + str(addr) + "\n")
-file = open("log.txt", 'a')
-file.write("\nConnected: " + str(addr) + "\n")
-file.close()
+print("Connected: " + str(addr))
+
+# create the log file
+LOG_FILE = datetime.datetime.now().strftime("%Y %m %d %H %M %S %f").replace(' ', '') + '.log'
+FLAG = os.O_WRONLY | os.O_CREAT     # read write only | create if doesnt exist
+PERM = 0o644                        # u:rw g:r o:r
+with os.fdopen(os.open(LOG_FILE, FLAG, PERM), 'w') as fout:
+    fout.write("\nConnected: " + str(addr) + "\n")
+print("Logging messages in: " + LOG_FILE + "\n")
 
 # generate and send encryption key to client
 key = Fernet.generate_key()
 conn.sendall(key)
 enc = Fernet(key)
-file = open("log.txt", 'a')
-file.write("\nKey: " + key.decode() + "\n")
-file.close()
+with os.fdopen(os.open(LOG_FILE, FLAG, PERM), 'a') as fout:
+    fout.write("\nKey: " + key.decode() + "\n")
 
 # keep track of the number of incoming messages
 message_ID = 0
@@ -98,9 +89,8 @@ while True:
             break
         
         # log message ID
-        file = open("log.txt", 'a')
-        file.write("\nMessage ID: " + str(message_ID))
-        file.close()
+        with os.fdopen(os.open(LOG_FILE, FLAG, PERM), 'a') as fout:
+            fout.write("\nMessage ID: " + str(message_ID))
         message_ID += 1
         
         # decrypt message
@@ -121,24 +111,21 @@ while True:
             # check if hash values match
             if (test_hash_value != hash_value):
                 print ("Incorrect hash value.")
-                file = open("log.txt", 'a')
-                file.write("\nIncorrect hash value.")
-                file.close()                
+                with os.fdopen(os.open(LOG_FILE, FLAG, PERM), 'a') as fout:
+                    fout.write("\nIncorrect hash value.")
                 hacked("modification")
             
             # log the hash value
-            file = open("log.txt", 'a')
-            file.write("\nHash value: " + str(hash_value)[2 : -1])
-            file.close()
+            with os.fdopen(os.open(LOG_FILE, FLAG, PERM), 'a') as fout:
+                fout.write("\nHash value: " + str(hash_value)[2 : -1])
             
             # check for relay attack
             timestamp = datetime.datetime.strptime(message[:26].decode(), '%Y-%m-%d %H:%M:%S.%f')
             message = message[26:]
             
             # log the timestamp
-            file = open("log.txt", 'a')
-            file.write("\nTimestamp: " + str(timestamp))
-            file.close()
+            with os.fdopen(os.open(LOG_FILE, FLAG, PERM), 'a') as fout:
+                fout.write("\nTimestamp: " + str(timestamp))
             
             # if the timestamp is older than the most recent timestamp - possible attack
             print(current_time)
@@ -162,11 +149,15 @@ while True:
         conn.sendall(enc.encrypt(hash_value))
 
         # log the message
-        file = open("log.txt", 'a')
-        file.write("\nMessage text: " + message.decode() + "\n")
-        file.close()
+        with os.fdopen(os.open(LOG_FILE, FLAG, PERM), 'a') as fout:
+            fout.write("\nMessage text: " + message.decode() + "\n")
     
     # end program if there is an exception
     except Exception:
         print ("An error occurred.")
-        break  
+        break
+
+# move the log file to the log folder
+if not os.path.exists("logs"):
+    os.makedirs("logs")
+shutil.move(LOG_FILE, "logs/" + LOG_FILE)
