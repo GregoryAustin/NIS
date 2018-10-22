@@ -5,7 +5,6 @@ from Crypto.PublicKey import RSA
 from Crypto import Random
 import ast
 import math
-import AEScipher
 import hashlib
 import json 
 import sys
@@ -56,7 +55,7 @@ print("Sending: ", msg)
 client_socket.send(str(encryptedMsg).encode()) # send message
 
 privateKey = ''
-secretkey = "pass"
+secretkey = utility.generate_nonce(); 
 
 while True:
     data = client_socket.recv(2048).decode() # receive response from Bob
@@ -135,20 +134,20 @@ while True:
     print("\n")
 
 
-message = input(" -> ")  # take input
+# message = input(" -> ")  # take input
 
-while message.lower().strip() != 'bye':
-    # encrypt message using Bob's public key 
-    encryptedMsg = publickey.encrypt(message.encode('utf-8'), 32) 
+# while message.lower().strip() != 'bye':
+#     # encrypt message using Bob's public key 
+#     encryptedMsg = publickey.encrypt(message.encode('utf-8'), 32) 
 
-    client_socket.send(str(encryptedMsg).encode()) # send message
-    data = client_socket.recv(2048).decode() # receive response from Bob
-    data = data.replace("\r\n", '')
+#     client_socket.send(str(encryptedMsg).encode()) # send message
+#     data = client_socket.recv(2048).decode() # receive response from Bob
+#     data = data.replace("\r\n", '')
 
-    # decyrypt using my private key (Alice)
-    decrypted = key.decrypt(ast.literal_eval(data)).decode('utf-8')
-    print('Received from server: ' + str(decrypted))  # show in terminal
+#     # decyrypt using my private key (Alice)
+#     decrypted = key.decrypt(ast.literal_eval(data)).decode('utf-8')
+#     print('Received from server: ' + str(decrypted))  # show in terminal
 
-    message = input(" -> ")  # again take input
+#     message = input(" -> ")  # again take input
 
-client_socket.close()  # close the connection
+# client_socket.close()  # close the connection

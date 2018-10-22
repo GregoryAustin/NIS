@@ -5,7 +5,6 @@ from Crypto.PublicKey import RSA
 from Crypto import Random
 import ast
 import math
-import AEScipher
 import hashlib
 import json
 import sys
@@ -75,7 +74,6 @@ while True:
     elif 'nonce2' in jsonData:
         if jsonData['nonce2'] == str(nonce):
             print("Nonce is same as the nonce I sent")
-            print("Creating a private key... ") 
 
             msg = "ack"
             encryptedMsg = publickey.encrypt(msg.encode('utf-8'), 32) 
@@ -109,6 +107,7 @@ while True:
 
             if (verified):
                 print ("WE BOTH HAVE THE SECRET KEY")
+                print ("The secretkey: ", secretkey); 
                 break;
             else: 
                 print("Not verified!!!")
@@ -124,27 +123,27 @@ while True:
 
 
 
-while True:
-    # receive data stream. it won't accept data packet greater than 1024 bytes
-    data = conn.recv(2048).decode()
-    data = data.replace("\r\n", '')
+# while True:
+#     # receive data stream. it won't accept data packet greater than 1024 bytes
+#     data = conn.recv(2048).decode()
+#     data = data.replace("\r\n", '')
 
-    # data = data.replace("encrypted_message=", '')
+#     # data = data.replace("encrypted_message=", '')
 
 
-    if not data:
-        # if data is not received break
-        break
+#     if not data:
+#         # if data is not received break
+#         break
 
-    # Decrypting using this private key (Bob)
-    decrypted = key.decrypt(ast.literal_eval(data)).decode('utf-8')
-    print("from connected user: " + str(decrypted))
-    data = input(' -> ')
+#     # Decrypting using this private key (Bob)
+#     decrypted = key.decrypt(ast.literal_eval(data)).decode('utf-8')
+#     print("from connected user: " + str(decrypted))
+#     data = input(' -> ')
 
-    # Encrypt using Alice's public key 
-    encryptedMsg = publickey.encrypt(data.encode('utf-8'), 32)
+#     # Encrypt using Alice's public key 
+#     encryptedMsg = publickey.encrypt(data.encode('utf-8'), 32)
 
-    # send data to Bob client
-    conn.send(str(encryptedMsg).encode()) 
+#     # send data to Bob client
+#     conn.send(str(encryptedMsg).encode()) 
 
-conn.close()  # close the connection
+# conn.close()  # close the connection
