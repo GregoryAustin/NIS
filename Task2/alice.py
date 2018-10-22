@@ -147,10 +147,15 @@ while True:
 
         # let client know the message was received
         conn.sendall(enc.encrypt(hash_value))
+        confirmation_time = datetime.datetime.now()
 
         # log the message
         with os.fdopen(os.open(LOG_FILE, FLAG, PERM), 'a') as fout:
-            fout.write("\nMessage text: " + message.decode() + "\n")
+            fout.write("\nMessage text: " + message.decode())
+
+        # log the confirmation
+        with os.fdopen(os.open(LOG_FILE, FLAG, PERM), 'a') as fout:
+            fout.write("\nMessage confirmed at: " + str(confirmation_time) + "\n")
     
     # end program if there is an exception
     except Exception:

@@ -44,7 +44,6 @@ while (True):
         with open("port") as in_file:
             value = in_file.readlines()
             in_file.close()
-        print("here")
         
         # set port that server is on
         if not (len(value) < 1):
