@@ -1,3 +1,11 @@
+# NIS Assignment 2018
+
+# David Jones - JNSDAV026
+# Gregory Austin - ASTGRE002
+# Joshua Abraham - ABRJOS005
+# Matthew Young - YNGMAT005
+
+
 import socket
 import utility 
 import Crypto

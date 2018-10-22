@@ -1,3 +1,11 @@
+# NIS Assignment 2018
+
+# David Jones - JNSDAV026
+# Gregory Austin - ASTGRE002
+# Joshua Abraham - ABRJOS005
+# Matthew Young - YNGMAT005
+
+
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.Signature import PKCS1_v1_5
